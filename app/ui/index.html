@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Jarvis</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="rail" aria-label="Main">
+    <button type="button" class="rail-orb" id="rail-orb" aria-label="Dashboard" title="Dashboard"><signal-orb id="orb-mini" particles="300"></signal-orb></button>
+    <button class="nav-btn" data-page="chat" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v9H4zM10 20v-6h4v6"/></svg>
+      <span>Home</span>
+      <b class="badge" id="approval-badge" hidden></b>
+    </button>
+    <button class="nav-btn" data-page="chats">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v4H4zM4 10h16v4H4zM4 16h10v4H4z"/></svg>
+      <span>Chats</span>
+    </button>
+    <button class="nav-btn" data-page="activity">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>
+      <span>Activity</span>
+    </button>
+    <button class="nav-btn" data-page="memory">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4a6 6 0 0 0-3 11.2V19h6v-3.8A6 6 0 0 0 12 4zM10 21h4"/></svg>
+      <span>Memory</span>
+      <b class="badge" id="memory-badge" hidden></b>
+    </button>
+    <button class="nav-btn" data-page="settings">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
+      <span>Settings</span>
+    </button>
+    <button type="button" class="quiet icon-btn rail-theme" id="theme-toggle" aria-label="Switch light or dark" title="Switch light or dark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+  </nav>
+
+  <main>
+    <!-- Chat -->
+    <section class="page home-mode" id="page-chat" aria-label="Chat">
+      <header class="page-head">
+        <div class="head-title">
+          <h1 id="chat-title">Jarvis</h1>
+          <p class="sub" id="head-sub"></p>
+        </div>
+        <div class="clock" id="clock" aria-hidden="true"><span id="clock-time"></span><span id="clock-date"></span></div>
+        <div class="head-actions">
+          <span class="model-badge" id="model-badge" hidden></span>
+          <button class="quiet" id="to-chat" hidden>Back to the conversation</button>
+          <button class="quiet" id="open-workspace">Open workspace</button>
+          <button class="quiet" id="new-chat">New chat</button>
+        </div>
+      </header>
+      <div class="home" id="home">
+        <article class="card" id="card-day" role="button" tabindex="0" title="Ask about the rest of your day">
+            <header class="card-head"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14v13H5zM5 10h14M9 4v4M15 4v4"/></svg><span>Today</span><b id="day-count"></b></header>
+            <div class="card-body" id="day-body"></div>
+            <p class="card-foot" id="day-foot"></p>
+          </article>
+        <div class="stage">
+          <div class="lens-wrap">
+            <div class="lens">
+              <signal-orb id="orb"></signal-orb>
+            </div>
+          </div>
+          <div class="orb-text">
+            <p class="orb-word"><span class="state-dot" id="state-dot"></span><span id="orb-word">Ready</span></p>
+            <p class="caption" id="caption" dir="auto" aria-live="polite"></p>
+          </div>
+          <div class="home-approvals" id="home-approvals" aria-live="assertive"></div>
+        </div>
+          <article class="card" id="card-mail" role="button" tabindex="0" title="Ask for a summary of your unread email">
+            <header class="card-head"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM4 7l8 6 8-6"/></svg><span>Inbox</span><b id="mail-count"></b></header>
+            <div class="card-body" id="mail-body"></div>
+          </article>
+          <article class="card" id="card-needs">
+            <header class="card-head"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l9 16H3zM12 10v4M12 17v.5"/></svg><span>Needs you</span><b id="needs-count"></b></header>
+            <div class="card-body" id="needs-body"></div>
+          </article>
+      </div>
+      <div class="conversation" id="conversation" aria-live="polite"></div>
+      <div class="composer-wrap">
+        <p class="status" id="status" hidden><span class="pulse" aria-hidden="true"></span><span id="status-text">Working…</span></p>
+        <p class="hint" id="hint"></p>
+        <form class="composer" id="composer">
+          <label class="sr-only" for="input">Message</label>
+          <textarea id="input" rows="1" placeholder="Ask anything, or tell me what to do" autocomplete="off"></textarea>
+          <div class="voice-ctl">
+            <button type="button" id="auto-listen" class="auto-listen" aria-pressed="false" aria-label="Conversation mode">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.7M20 4v4.7h-4.7M20 12a8 8 0 0 1-13.7 5.6L4 15.3M4 20v-4.7h4.7"/></svg>
+              <span>Auto</span>
+            </button>
+            <button type="button" id="mic" class="mic" aria-label="Speak" title="Speak (Ctrl+Alt+Space)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+            </button>
+          </div>
+          <button type="button" id="hush" class="quiet" hidden>Stop speaking</button>
+          <button type="submit" id="send">Send</button>
+          <button type="button" id="stop" class="danger" hidden>Stop</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Past chats -->
+    <section class="page" id="page-chats" aria-label="Chats" hidden>
+      <header class="page-head">
+        <h1>Chats</h1>
+        <p class="sub">Earlier conversations, kept when you start a new chat. Open one to read it or carry on.</p>
+      </header>
+      <div class="chats-wrap">
+        <ol class="chat-list" id="chat-list"></ol>
+        <article class="chat-view" id="chat-view" hidden>
+          <div class="row-actions">
+            <h2 id="chat-view-title"></h2>
+            <form class="rename" id="chat-rename-form" hidden>
+              <label class="sr-only" for="chat-rename-input">Chat name</label>
+              <input id="chat-rename-input" maxlength="80" autocomplete="off">
+              <button type="submit">Save</button>
+              <button type="button" class="quiet" id="chat-rename-cancel">Cancel</button>
+            </form>
+            <span class="row-actions">
+              <button class="quiet" id="chat-rename">Rename</button>
+              <button class="quiet" id="chat-delete">Delete</button>
+              <button id="chat-continue">Continue this chat</button>
+            </span>
+          </div>
+          <div class="conversation" id="chat-view-body"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Activity -->
+    <section class="page" id="page-activity" aria-label="Activity" hidden>
+      <header class="page-head">
+        <h1>Activity</h1>
+        <p class="sub">Everything Jarvis did or tried to do, newest first.</p>
+      </header>
+      <ol class="activity" id="activity-list"></ol>
+    </section>
+
+    <!-- Memory -->
+    <section class="page" id="page-memory" aria-label="Memory" hidden>
+      <header class="page-head">
+        <h1>Memory</h1>
+        <p class="sub">What Hermes knows about you (its USER.md and MEMORY.md). Edit anything. New things Hermes wants to remember wait under “Waiting for your OK” until you approve them; a chat that already started picks them up after New chat (on Discord, <code>/new</code>).</p>
+      </header>
+      <div class="memory-wrap">
+        <section class="mem-section mem-pending" id="mem-pending" aria-label="Waiting for your OK" hidden>
+          <h3>Waiting for your OK <b id="mem-pending-count"></b></h3>
+          <p class="note">Hermes asked to save these, from a chat, Discord or on its own. Nothing here is in memory until you approve it. Saying “yes” in a chat doesn’t approve it.</p>
+          <ul class="fact-list" id="mem-pending-list"></ul>
+          <p class="note" id="mem-pending-msg" role="status"></p>
+        </section>
+        <div class="mem-tools">
+          <label class="sr-only" for="mem-search">Search memory</label>
+          <input type="search" id="mem-search" placeholder="Search memory" autocomplete="off">
+          <button class="quiet" id="mem-as-text">Edit as text</button>
+        </div>
+        <div class="mem-facts" id="mem-facts"></div>
+
+        <div class="mem-text" id="mem-text-panel" hidden>
+          <textarea id="memory-text" spellcheck="true" aria-label="Memory"></textarea>
+          <div class="row-actions">
+            <button id="memory-save">Save memory</button>
+            <button class="quiet" id="mem-text-close">Back to the list</button>
+            <span class="saved" id="memory-saved" hidden>Saved</span>
+          </div>
+        </div>
+
+        <section class="mem-history">
+          <h2>Earlier versions</h2>
+          <div class="row-actions">
+            <label class="sr-only" for="mem-history">Day</label>
+            <select id="mem-history"></select>
+            <button class="quiet" id="mem-restore">Restore</button>
+            <span class="note" id="mem-restore-msg"></span>
+          </div>
+          <p class="note">Memory as it was before each day's first change, kept for 30 days.</p>
+        </section>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section class="page" id="page-settings" aria-label="Settings" hidden>
+      <header class="page-head">
+        <h1>Settings</h1>
+        <p class="sub">Changes save as you make them.</p>
+      </header>
+      <div class="settings">
+        <fieldset>
+          <legend>You and your assistant</legend>
+          <label>Assistant's name <input id="s-assistantName" maxlength="40"></label>
+          <label>Your name <input id="s-userName" maxlength="60" placeholder="So it knows what to call you"></label>
+          <p class="note">Personality and how it talks to you are set in Hermes (its SOUL.md), so desk and phone behave the same.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Google account</legend>
+          <p class="note" id="g-status">Not connected.</p>
+          <p class="note error-text" id="g-error" hidden></p>
+          <div class="row-actions">
+            <button class="quiet" id="g-client">Choose client file</button>
+            <button id="g-connect" disabled>Connect Google</button>
+            <button class="quiet" id="g-disconnect" hidden>Disconnect</button>
+          </div>
+          <p class="note">Jarvis uses Google's free Gmail and Calendar APIs through a client file you create once in Google Cloud. Sending email and inviting people always ask first; once you approve, it goes out at once.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Voice</legend>
+          <label>Shortcut to talk <input id="s-voiceHotkey" spellcheck="false"></label>
+          <label class="check"><input type="checkbox" id="s-speakReplies"> Answer out loud when I speak</label>
+          <label class="check"><input type="checkbox" id="s-speakApprovals"> When Jarvis needs my OK, say out loud what it wants to do and why</label>
+          <label class="check"><input type="checkbox" id="s-keepListening"> Conversation mode: after a spoken answer, listen for my reply (ends when I stay quiet)</label>
+          <label>I speak
+            <select id="s-voiceLanguage">
+              <option value="auto">English or Urdu (detect)</option>
+              <option value="english">English</option>
+              <option value="urdu">Urdu</option>
+            </select>
+          </label>
+          <label>English voice
+            <select id="s-englishVoice">
+              <option value="bm_george">George (British, male)</option>
+              <option value="bm_fable">Fable (British, male)</option>
+              <option value="am_michael">Michael (American, male)</option>
+              <option value="af_heart">Heart (American, female)</option>
+              <option value="bf_emma">Emma (British, female)</option>
+            </select>
+          </label>
+          <label>Urdu voice
+            <select id="s-urduVoice">
+              <option value="fasih">Fasih (male)</option>
+              <option value="aegis">Aegis (female)</option>
+            </select>
+          </label>
+          <div class="row-actions">
+            <button class="quiet" id="voice-prepare">Download voice models</button>
+            <button class="quiet" id="voice-test">Hear a sample</button>
+            <span class="note" id="voice-status"></span>
+          </div>
+          <p class="note">Everything runs on this PC: your voice never leaves it. The first time, about 1.8 GB of speech models download once (Whisper to hear you, Kokoro for English, Piper for Urdu). Saying "yes" never approves anything; approvals stay on screen.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Memory</legend>
+          <label>Vault folder, where a readable copy of your memory and past chats is kept <input id="s-vaultFolder" spellcheck="false"></label>
+          <button class="quiet" id="open-vault">Open vault folder</button>
+          <p class="note">Plain markdown files you can open in Obsidian or any editor. What Jarvis remembers lives in Hermes's memory files; editing the vault copy doesn't change it.</p>
+        </fieldset>
+
+        <fieldset>
+          <legend>Backup</legend>
+          <label class="check"><input type="checkbox" id="s-autoBackup"> Back up my chats, settings and Hermes's memory and settings every day</label>
+          <label>Backup folder <input id="s-backupFolder" spellcheck="false"></label>
+          <div class="row-actions">
+            <button class="quiet" id="bk-now">Back up now</button>
+            <button class="quiet" id="bk-restore">Restore from a backup…</button>
+            <button class="quiet" id="bk-open">Open backup folder</button>
+            <span class="note" id="bk-msg"></span>
+          </div>
+          <p class="note">Keeps the last 10 backups. Choose a folder that syncs, such as one in OneDrive, so a backup survives this PC. Not included: your Google sign-in and the speech models; after restoring on a new PC, reconnect Google, and voice downloads again.</p>
+        </fieldset>
+
+        <fieldset id="health">
+          <legend>Is everything working?</legend>
+          <ul class="rules" id="health-list"><li>Checking…</li></ul>
+          <button class="quiet" id="health-check">Check again</button>
+        </fieldset>
+
+        <fieldset id="safety-rules">
+          <legend>Safety rules</legend>
+          <p class="note">Hermes is the brain now, so these rules are enforced by Hermes and its tools, not set here. To change them, change Hermes.</p>
+          <ul class="rules">
+            <li><b>Always asks you, every time:</b> sending an email, sending invitations, changing or cancelling an event other people are on, opening a program you downloaded. No “always allow”; no answer means no.</li>
+            <li><b>Does on its own, in a chat that has only heard from you:</b> reading your email and calendar, saving drafts, adding or changing your own events, opening apps, websites and files, notifications, reading the screen or clipboard.</li>
+            <li><b>Commands and files on this PC:</b> risky commands are flagged; Hermes’s smart check allows the low-risk ones and asks you about the rest. Scheduled and unattended jobs are refused instead of asking.</li>
+            <li><b>Memory:</b> Hermes asks before saving anything to its memory.</li>
+          </ul>
+          <ul class="rules">
+            <li><b>Once a chat has read text someone else wrote</b> (an email, an event, a web page, the screen, the clipboard, a download): everything except plain reading asks first, until you start a new chat. If that chat has also read your own files or mail, web searches ask too.</li>
+            <li><b>Jarvis’s and Hermes’s own files</b> (settings, safety rules, code): changing them always asks.</li>
+          </ul>
+        </fieldset>
+
+        <fieldset>
+          <legend>App</legend>
+          <label>Shortcut to show Jarvis <input id="s-hotkey" spellcheck="false"></label>
+          <label class="check"><input type="checkbox" id="s-startAtLogin"> Start Jarvis when I sign in to Windows</label>
+          <label>Appearance
+            <select id="s-theme">
+              <option value="system">Match Windows</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+          <button class="quiet" id="open-data">Open Jarvis data folder</button>
+        </fieldset>
+      </div>
+    </section>
+  </main>
+
+  <template id="approval-template">
+    <article class="approval" role="group" aria-label="Approval needed">
+      <p class="approval-lead"></p>
+      <p class="approval-what"></p>
+      <ul class="approval-why"></ul>
+      <div class="approval-actions">
+        <button class="approve" data-choice="once">Allow</button>
+        <button class="always quiet" data-choice="always">Always allow this</button>
+        <button class="deny quiet" data-choice="deny">Don't allow</button>
+      </div>
+      <p class="approval-result" hidden></p>
+    </article>
+  </template>
+
+  <script src="vendor/signal-orb.js"></script>
+  <script src="markdown.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+name: jarvis-trust
+version: "0.1.0"
+description: "Assistant v2 safety: once a Jarvis-desk or Discord chat has read text someone else wrote (a web page, search results, an email, the screen), risky local steps in that chat (commands, code, file writes, skill/cron changes, delegation) need your approval. Also sets the shared Jarvis MCP taint so drafts and own-event changes ask too."
+author: "Amaar / Hermes"
+provides_hooks:
+  - pre_tool_call
+  - post_tool_call

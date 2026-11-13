@@ -1,0 +1,30 @@
+{
+  "name": "jarvis",
+  "productName": "Jarvis",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Voice and dashboard face for a personal assistant whose brain is Hermes.",
+  "license": "MIT",
+  "type": "module",
+  "main": "app/main/main.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test \"tests/**/*.test.js\" && python tests/trust_plugin_test.py",
+    "smoke": "electron tests/smoke/main.js"
+  },
+  "dependencies": {
+    "@diffusionstudio/piper-wasm": "1.0.0",
+    "@huggingface/transformers": "3.8.1",
+    "@modelcontextprotocol/sdk": "1.32.1",
+    "@napi-rs/keyring": "2.1.0",
+    "kokoro-js": "1.2.1",
+    "onnxruntime-node": "1.21.0",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "electron": "44.7.0"
+  }
+}
